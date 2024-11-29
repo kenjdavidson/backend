@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/streampets/backend/internal/routes"
+	"github.com/streampets/backend/routes"
 )
 
 func main() {
