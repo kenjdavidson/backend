@@ -9,6 +9,7 @@ import (
 var DB *sql.DB
 
 func ConnectDB() {
+	// TODO: Move into PROD / DEV .env files
 	dsn := "host=localhost user=postgres password=password dbname=streampets port=5432 sslmode=disable"
 
 	db, err := sql.Open("postgres", dsn)
