@@ -1,26 +1,36 @@
 package config
 
 import (
-	"database/sql"
+	"fmt"
+	"os"
 
 	_ "github.com/lib/pq"
+	"github.com/streampets/backend/models"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
 func ConnectDB() {
-	// TODO: Move into PROD / DEV .env files
-	dsn := "host=localhost user=postgres password=password dbname=streampets port=5432 sslmode=disable"
+	// In Docker compose environment
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	sslMode := os.Getenv("DB_SSL_MODE")
+	dbName := os.Getenv("DB_NAME")
 
-	db, err := sql.Open("postgres", dsn)
+	// Convert to Docker secrets
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s", host, user, password, dbName, port, sslMode)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
+	db.AutoMigrate(&models.Channel{})
 
 	DB = db
 }

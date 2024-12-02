@@ -1,35 +1,24 @@
 package repositories
 
 import (
-	"database/sql"
+	"github.com/google/uuid"
+	"github.com/streampets/backend/models"
+	"gorm.io/gorm"
 )
 
 type ChannelRepository struct {
-	DB *sql.DB
+	DB *gorm.DB
 }
 
-func NewChannelRepository(db *sql.DB) *ChannelRepository {
+func NewChannelRepository(db *gorm.DB) *ChannelRepository {
 	return &ChannelRepository{DB: db}
 }
 
-func (repo *ChannelRepository) CreateChannel(channelID, channelName, overlayID string) error {
-	tx, err := repo.DB.Begin()
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+func (repo *ChannelRepository) CreateChannel(channelID, channelName string) (uuid.UUID, error) {
+	overlayID := uuid.New()
 
-	const createChannelQuery = `
-		INSERT INTO channels (channelid, channelname, overlayid)
-		VALUES ($1,$2,$3)`
-	_, err = repo.DB.Exec(createChannelQuery, channelID, channelName, overlayID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+	channel := models.Channel{ChannelID: channelID, ChannelName: channelName, OverlayID: overlayID}
+	result := repo.DB.Create(&channel)
 
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-	return nil
+	return overlayID, result.Error
 }
