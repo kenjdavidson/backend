@@ -1,68 +1,70 @@
+-- CREATE DATABASE streampets;
+-- CREATE SCHEMA public AUTHORIZATION pg_database_owner;
+
 CREATE TABLE channels (
-	channelid varchar NOT NULL,
-	channelname varchar NOT NULL,
-	overlayid uuid NOT NULL,
-	CONSTRAINT channels_pk PRIMARY KEY (channelid),
-	CONSTRAINT channels_unique UNIQUE (overlayid)
+	channel_id text NOT NULL,
+	channel_name text NULL,
+	overlay_id text NULL,
+	CONSTRAINT channels_pk PRIMARY KEY (channel_id)
 );
 
 CREATE TABLE items (
-	itemid uuid NOT NULL,
+	item_id uuid NOT NULL,
 	"name" varchar NOT NULL,
 	rarity varchar NOT NULL,
 	image varchar NOT NULL,
-	previmg varchar NOT NULL,
-	CONSTRAINT items_pk PRIMARY KEY (itemid)
+	prev_img varchar NOT NULL,
+	CONSTRAINT items_pk PRIMARY KEY (item_id)
 );
 
 CREATE TABLE users (
-	userid varchar NOT NULL,
+	user_id varchar NOT NULL,
 	username varchar NOT NULL,
-	CONSTRAINT users_pk PRIMARY KEY (userid)
+	CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
-CREATE TABLE channelitems (
-	channelid varchar NOT NULL,
-	itemid uuid NOT NULL,
-	CONSTRAINT channelitems_pk PRIMARY KEY (channelid, itemid),
-	CONSTRAINT channelitems_unique UNIQUE (itemid),
-	CONSTRAINT channelitems_channels_fk FOREIGN KEY (channelid) REFERENCES channels(channelid),
-	CONSTRAINT channelitems_items_fk FOREIGN KEY (itemid) REFERENCES items(itemid)
+CREATE TABLE channel_items (
+	channel_id varchar NOT NULL,
+	item_id uuid NOT NULL,
+	CONSTRAINT channelitems_pk PRIMARY KEY (channel_id, item_id),
+	CONSTRAINT channelitems_unique UNIQUE (item_id),
+	CONSTRAINT channelitems_channels_fk FOREIGN KEY (channel_id) REFERENCES channels(channelid),
+	CONSTRAINT channelitems_items_fk FOREIGN KEY (item_id) REFERENCES items(item_id)
 );
 
-CREATE TABLE defaultchannelitems (
-	channelid varchar NOT NULL,
-	itemid uuid NOT NULL,
-	CONSTRAINT defaultchannelitems_pk PRIMARY KEY (channelid),
-	CONSTRAINT defaultchannelitems_channelitems_fk FOREIGN KEY (channelid,itemid) REFERENCES channelitems(channelid,itemid)
+CREATE TABLE default_channel_items (
+	channel_id varchar NOT NULL,
+	item_id uuid NOT NULL,
+	CONSTRAINT defaultchannelitems_pk PRIMARY KEY (channel_id),
+	CONSTRAINT defaultchannelitems_channelitems_fk FOREIGN KEY (channel_id,item_id) REFERENCES channel_items(channel_id,item_id)
 );
 
-CREATE TABLE owneditems (
-	userid varchar NOT NULL,
-	transactionid varchar NOT NULL,
-	itemid uuid NOT NULL,
-	channelid varchar NOT NULL,
-	CONSTRAINT owneditems_pk PRIMARY KEY (userid, itemid, channelid),
-	CONSTRAINT owneditems_unique UNIQUE (transactionid),
-	CONSTRAINT owneditems_channelitems_fk FOREIGN KEY (channelid,itemid) REFERENCES channelitems(channelid,itemid),
-	CONSTRAINT owneditems_users_fk FOREIGN KEY (userid) REFERENCES users(userid)
+CREATE TABLE owned_items (
+	user_id varchar NOT NULL,
+	transaction_id varchar NOT NULL,
+	item_id uuid NOT NULL,
+	channel_id varchar NOT NULL,
+	CONSTRAINT owneditems_pk PRIMARY KEY (user_id, item_id, channel_id),
+	CONSTRAINT owneditems_unique UNIQUE (transaction_id),
+	CONSTRAINT owneditems_channelitems_fk FOREIGN KEY (channel_id,item_id) REFERENCES channel_items(channel_id,item_id),
+	CONSTRAINT owneditems_users_fk FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
-CREATE INDEX owneditems_userid_idx ON public.owneditems USING btree (userid, channelid);
+CREATE INDEX owneditems_userid_idx ON public.owned_items USING btree (user_id, channel_id);
 
-CREATE TABLE schedule (
-	scheduleid uuid NOT NULL,
-	dayofweek varchar NOT NULL,
-	itemid uuid NOT NULL,
-	channelid varchar NOT NULL,
-	CONSTRAINT schedule_pk PRIMARY KEY (scheduleid),
-	CONSTRAINT schedule_channelitems_fk FOREIGN KEY (channelid,itemid) REFERENCES channelitems(channelid,itemid)
+CREATE TABLE schedules (
+	schedule_id uuid NOT NULL,
+	day_of_week varchar NOT NULL,
+	item_id uuid NOT NULL,
+	channel_id varchar NOT NULL,
+	CONSTRAINT schedule_pk PRIMARY KEY (schedule_id),
+	CONSTRAINT schedule_channelitems_fk FOREIGN KEY (channel_id,item_id) REFERENCES channel_items(channel_id,item_id)
 );
 
-CREATE TABLE selecteditems (
-	userid varchar NOT NULL,
-	channelid varchar NOT NULL,
-	itemid uuid NOT NULL,
-	CONSTRAINT selecteditems_pk PRIMARY KEY (userid, channelid),
-	CONSTRAINT selecteditems_channelitems_fk FOREIGN KEY (channelid,itemid) REFERENCES channelitems(channelid,itemid),
-	CONSTRAINT selecteditems_users_fk FOREIGN KEY (userid) REFERENCES users(userid)
+CREATE TABLE selected_items (
+	user_id varchar NOT NULL,
+	channel_id varchar NOT NULL,
+	item_id uuid NOT NULL,
+	CONSTRAINT selecteditems_pk PRIMARY KEY (user_id, channel_id),
+	CONSTRAINT selecteditems_channelitems_fk FOREIGN KEY (channel_id,item_id) REFERENCES channel_items(channel_id,item_id),
+	CONSTRAINT selecteditems_users_fk FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
