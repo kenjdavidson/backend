@@ -30,7 +30,16 @@ func ConnectDB() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&models.Channel{})
+	db.AutoMigrate(
+		&models.ChannelItem{},
+		&models.Channel{},
+		&models.DefaultChannelItem{},
+		&models.Item{},
+		&models.OwnedItem{},
+		&models.Schedule{},
+		&models.SelectedItem{},
+		&models.User{},
+	)
 
 	DB = db
 }
