@@ -7,18 +7,18 @@ import (
 )
 
 type ChannelRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewChannelRepository(db *gorm.DB) *ChannelRepository {
-	return &ChannelRepository{DB: db}
+	return &ChannelRepository{db: db}
 }
 
 func (repo *ChannelRepository) CreateChannel(channelID, channelName string) (uuid.UUID, error) {
 	overlayID := uuid.New()
 
 	channel := models.Channel{ChannelID: channelID, ChannelName: channelName, OverlayID: overlayID}
-	result := repo.DB.Create(&channel)
+	result := repo.db.Create(&channel)
 
 	return overlayID, result.Error
 }

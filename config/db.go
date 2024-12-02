@@ -10,9 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func ConnectDB() {
+func ConnectDB() (*gorm.DB, error) {
 	// In Docker compose environment
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
@@ -27,10 +25,10 @@ func ConnectDB() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.ChannelItem{},
 		&models.Channel{},
 		&models.DefaultChannelItem{},
@@ -39,7 +37,9 @@ func ConnectDB() {
 		&models.Schedule{},
 		&models.SelectedItem{},
 		&models.User{},
-	)
+	); err != nil {
+		return nil, err
+	}
 
-	DB = db
+	return db, nil
 }

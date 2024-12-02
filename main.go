@@ -13,11 +13,14 @@ func main() {
 		panic(err)
 	}
 
-	config.ConnectDB()
+	db, err := config.ConnectDB()
+	if err != nil {
+		panic(err)
+	}
 
 	r := gin.Default()
 
-	routes.RegisterTwitchBotRoutes(r)
+	routes.RegisterOverlayRoutes(r, db)
 
 	r.Run()
 }
