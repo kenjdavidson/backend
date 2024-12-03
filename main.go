@@ -18,9 +18,12 @@ func main() {
 		panic(err)
 	}
 
+	// This smells
+	twitchRepo := config.CreateTwitchRepo()
+
 	r := gin.Default()
 
-	routes.RegisterOverlayRoutes(r, db)
+	routes.RegisterOverlayRoutes(r, db, twitchRepo)
 
 	r.Run()
 }

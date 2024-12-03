@@ -2,8 +2,10 @@ package models
 
 import "github.com/google/uuid"
 
+type ChannelName string
+
 type Channel struct {
-	ChannelID   string
-	ChannelName string
+	ChannelID   UserID
+	ChannelName ChannelName
 	OverlayID   uuid.UUID
 }

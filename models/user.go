@@ -1,6 +1,8 @@
 package models
 
+type UserID string
+
 type User struct {
-	UserID   string
+	UserID   UserID
 	Username string
 }

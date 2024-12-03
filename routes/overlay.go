@@ -8,10 +8,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func RegisterOverlayRoutes(r *gin.Engine, db *gorm.DB) {
-	overlayRepo := repositories.NewOverlayRepo(db)
-	overlayService := services.NewOverlayService(overlayRepo)
-	overlayController := controllers.NewOverlayController(overlayService)
+func RegisterOverlayRoutes(r *gin.Engine, db *gorm.DB, twitchRepo *repositories.TwitchRepository) {
+	channelRepo := repositories.NewChannelRepository(db)
+
+	authService := services.NewAuthService(channelRepo)
+	channelService := services.NewChannelService(twitchRepo)
+
+	overlayController := controllers.NewOverlayController(channelService, authService)
 
 	api := r.Group("/api/v1")
 	{
