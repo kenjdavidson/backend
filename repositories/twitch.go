@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,7 +13,7 @@ import (
 
 type usernameResponse struct {
 	Data []struct {
-		ID string `json:"id"`
+		Login string `json:"login"`
 	} `json:"data"`
 }
 
@@ -41,8 +42,8 @@ func (repo *TwitchRepository) GetUsername(userID models.UserID) (string, error) 
 		return "", err
 	}
 
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer: %s", accessToken))
-	req.Header.Add("Client-ID", repo.ClientID)
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	req.Header.Add("Client-Id", repo.ClientID)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -55,12 +56,16 @@ func (repo *TwitchRepository) GetUsername(userID models.UserID) (string, error) 
 		return "", err
 	}
 
+	if resp.StatusCode != 200 {
+		return "", errors.New(string(body))
+	}
+
 	var data usernameResponse
 	if err = json.Unmarshal(body, &data); err != nil {
 		return "", err
 	}
 
-	return data.Data[0].ID, nil
+	return data.Data[0].Login, nil
 }
 
 func (repo *TwitchRepository) getAccessToken() (string, error) {
