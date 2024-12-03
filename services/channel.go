@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/streampets/backend/models"
-	"github.com/streampets/backend/repositories"
 )
 
 type Event struct {
@@ -12,12 +11,16 @@ type Event struct {
 
 type EventStream chan Event
 
+type TwitchRepo interface {
+	GetUsername(channelID models.UserID) (string, error)
+}
+
 type ChannelService struct {
-	twitchRepo *repositories.TwitchRepository
+	twitchRepo TwitchRepo
 	streams    map[string]EventStream
 }
 
-func NewChannelService(twitchRepo *repositories.TwitchRepository) *ChannelService {
+func NewChannelService(twitchRepo TwitchRepo) *ChannelService {
 	return &ChannelService{
 		twitchRepo: twitchRepo,
 		streams:    make(map[string]EventStream),
