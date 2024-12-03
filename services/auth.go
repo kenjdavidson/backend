@@ -5,14 +5,19 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/streampets/backend/models"
-	"github.com/streampets/backend/repositories"
 )
 
-type AuthService struct {
-	channelRepo *repositories.ChannelRepository
+var ErrIdMismatch = errors.New("channelID and overlayID do not match")
+
+type ChannelRepo interface {
+	GetOverlayID(channelID models.UserID) (uuid.UUID, error)
 }
 
-func NewAuthService(channelRepo *repositories.ChannelRepository) *AuthService {
+type AuthService struct {
+	channelRepo ChannelRepo
+}
+
+func NewAuthService(channelRepo ChannelRepo) *AuthService {
 	return &AuthService{channelRepo: channelRepo}
 }
 
@@ -23,7 +28,7 @@ func (s *AuthService) VerifyOverlayID(channelID models.UserID, overlayID uuid.UU
 	}
 
 	if overlayID != expectedID {
-		return errors.New("channelID and overlayID do not match")
+		return ErrIdMismatch
 	}
 
 	return nil
