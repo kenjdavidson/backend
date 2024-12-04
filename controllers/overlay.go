@@ -11,7 +11,8 @@ import (
 )
 
 type chanService interface {
-	GetEventStream(models.TwitchID) (services.EventStream, error)
+	GetEventStream(channelID models.TwitchID) (services.EventStream, error)
+	GetChannelsViewers(channelID models.TwitchID) ([]services.Viewer, error)
 }
 
 type authService interface {
@@ -45,6 +46,19 @@ func (c *OverlayController) HandleListen(ctx *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+
+	viewers, err := c.chanService.GetChannelsViewers(channelID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	for viewer := range viewers {
+		// TODO: Ensure viewer is formatted correctly
+		ctx.SSEvent("JOIN", viewer)
 	}
 
 	ch, err := c.chanService.GetEventStream(channelID)

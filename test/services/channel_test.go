@@ -2,9 +2,11 @@ package services_test
 
 import (
 	"errors"
+	"slices"
 	"testing"
 
 	"github.com/streampets/backend/models"
+	"github.com/streampets/backend/repositories"
 	"github.com/streampets/backend/services"
 )
 
@@ -85,4 +87,21 @@ func TestGetEventStream(t *testing.T) {
 			t.Errorf("the two streams are the same")
 		}
 	})
+}
+
+func TestGetChannelsViewers(t *testing.T) {
+	channelID := models.TwitchID("channel id")
+
+	twitchRepo := &repositories.TwitchRepository{}
+	channelService := services.NewChannelService(twitchRepo)
+
+	viewers, err := channelService.GetChannelsViewers(channelID)
+	if err != nil {
+		t.Errorf("did not expect an error but received %s", err.Error())
+	}
+
+	expected := []services.Viewer{}
+	if !slices.Equal(viewers, expected) {
+		t.Errorf("expected %s got %s", expected, viewers)
+	}
 }
