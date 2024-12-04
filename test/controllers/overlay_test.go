@@ -46,6 +46,10 @@ func (spy *SpyChannelService) GetEventStream(channelID models.TwitchID) (service
 	return spy.Stream, spy.Error
 }
 
+func (spy *SpyChannelService) GetChannelsViewers(channelID models.TwitchID) ([]services.Viewer, error) {
+	return []services.Viewer{}, nil
+}
+
 type CloseNotifierResponseWriter struct {
 	*httptest.ResponseRecorder
 }
