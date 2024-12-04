@@ -11,11 +11,11 @@ import (
 )
 
 type chanService interface {
-	GetEventStream(models.UserID) (services.EventStream, error)
+	GetEventStream(models.TwitchID) (services.EventStream, error)
 }
 
 type authService interface {
-	VerifyOverlayID(models.UserID, uuid.UUID) error
+	VerifyOverlayID(models.TwitchID, uuid.UUID) error
 }
 
 type OverlayController struct {
@@ -31,7 +31,7 @@ func NewOverlayController(chanService chanService, authService authService) *Ove
 }
 
 func (c *OverlayController) HandleListen(ctx *gin.Context) {
-	channelID := models.UserID(ctx.Query("channelID"))
+	channelID := models.TwitchID(ctx.Query("channelID"))
 	overlayID, err := uuid.Parse(ctx.Query("overlayID"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

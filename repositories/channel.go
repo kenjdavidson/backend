@@ -14,7 +14,7 @@ func NewChannelRepository(db *gorm.DB) *ChannelRepository {
 	return &ChannelRepository{db: db}
 }
 
-func (repo *ChannelRepository) GetOverlayID(channelID models.UserID) (uuid.UUID, error) {
+func (repo *ChannelRepository) GetOverlayID(channelID models.TwitchID) (uuid.UUID, error) {
 	var channel models.Channel
 
 	result := repo.db.Where("channel_id = ?", channelID).First(&channel)

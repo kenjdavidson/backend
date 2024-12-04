@@ -27,7 +27,7 @@ func TestGetOverlayID(t *testing.T) {
 	db := setupTestDB()
 	repo := repositories.NewChannelRepository(db)
 
-	channelID := models.UserID("channel id")
+	channelID := models.TwitchID("channel id")
 	channelName := "channel name"
 	expectedID := uuid.New()
 

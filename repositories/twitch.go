@@ -35,7 +35,7 @@ func NewTwitchRepository(id, secret string) (*TwitchRepository, error) {
 	return repo, nil
 }
 
-func (repo *TwitchRepository) GetUsername(userID models.UserID) (string, error) {
+func (repo *TwitchRepository) GetUsername(userID models.TwitchID) (string, error) {
 	resp, err := repo.getUsernameWithRefresh(userID)
 	if err != nil {
 		return "", err
@@ -53,7 +53,7 @@ func (repo *TwitchRepository) GetUsername(userID models.UserID) (string, error) 
 	return data.Data[0].Login, nil
 }
 
-func (repo *TwitchRepository) getUsernameWithRefresh(userID models.UserID) (*http.Response, error) {
+func (repo *TwitchRepository) getUsernameWithRefresh(userID models.TwitchID) (*http.Response, error) {
 	resp, err := getUsername(userID, repo.accessToken, repo.clientID)
 	if err != nil {
 		return nil, err
@@ -105,7 +105,7 @@ func getAccessToken(clientID, clientSecret string) (*http.Response, error) {
 }
 
 // Could be in separate TwitchApi file
-func getUsername(userID models.UserID, accessToken, clientID string) (*http.Response, error) {
+func getUsername(userID models.TwitchID, accessToken, clientID string) (*http.Response, error) {
 	url := fmt.Sprintf("https://api.twitch.tv/helix/users?id=%s", userID)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

@@ -12,7 +12,7 @@ type Event struct {
 type EventStream chan Event
 
 type TwitchRepo interface {
-	GetUsername(channelID models.UserID) (string, error)
+	GetUsername(channelID models.TwitchID) (string, error)
 }
 
 type ChannelService struct {
@@ -27,7 +27,7 @@ func NewChannelService(twitchRepo TwitchRepo) *ChannelService {
 	}
 }
 
-func (s *ChannelService) GetEventStream(channelID models.UserID) (EventStream, error) {
+func (s *ChannelService) GetEventStream(channelID models.TwitchID) (EventStream, error) {
 	channelName, err := s.twitchRepo.GetUsername(channelID)
 	if err != nil {
 		return nil, err

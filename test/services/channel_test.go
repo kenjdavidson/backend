@@ -9,16 +9,16 @@ import (
 )
 
 type GetUsernameCall struct {
-	ChannelID models.UserID
+	ChannelID models.TwitchID
 }
 
 type spyTwitchRepo struct {
 	Calls     []GetUsernameCall
-	Usernames map[models.UserID]string
+	Usernames map[models.TwitchID]string
 	Error     error
 }
 
-func (spy *spyTwitchRepo) GetUsername(channelID models.UserID) (string, error) {
+func (spy *spyTwitchRepo) GetUsername(channelID models.TwitchID) (string, error) {
 	spy.Calls = append(spy.Calls, GetUsernameCall{channelID})
 	val, ok := spy.Usernames[channelID]
 	if ok {
@@ -29,11 +29,11 @@ func (spy *spyTwitchRepo) GetUsername(channelID models.UserID) (string, error) {
 
 func TestGetEventStream(t *testing.T) {
 	t.Run("return the same stream for the same channel id", func(t *testing.T) {
-		channelID := models.UserID("channel id")
+		channelID := models.TwitchID("channel id")
 
 		spyTwitchRepo := &spyTwitchRepo{
 			[]GetUsernameCall{},
-			map[models.UserID]string{
+			map[models.TwitchID]string{
 				channelID: "username",
 			},
 			nil,
@@ -57,12 +57,12 @@ func TestGetEventStream(t *testing.T) {
 	})
 
 	t.Run("return different streams for different channel ids", func(t *testing.T) {
-		channelIdOne := models.UserID("channel id one")
-		channelIdTwo := models.UserID("channel id two")
+		channelIdOne := models.TwitchID("channel id one")
+		channelIdTwo := models.TwitchID("channel id two")
 
 		spyTwitchRepo := &spyTwitchRepo{
 			[]GetUsernameCall{},
-			map[models.UserID]string{
+			map[models.TwitchID]string{
 				channelIdOne: "username one",
 				channelIdTwo: "username two",
 			},

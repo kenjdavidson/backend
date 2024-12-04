@@ -29,7 +29,7 @@ func setupTwitchRepository() *repositories.TwitchRepository {
 func TestGetUsername(t *testing.T) {
 	twitchRepo := setupTwitchRepository()
 
-	channelID := models.UserID("83125762")
+	channelID := models.TwitchID("83125762")
 	expected := "ljrexcodes"
 
 	username, err := twitchRepo.GetUsername(channelID)

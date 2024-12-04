@@ -17,7 +17,7 @@ import (
 )
 
 type VerifyOverlayIDCall struct {
-	ChannelID models.UserID
+	ChannelID models.TwitchID
 	OverlayID uuid.UUID
 }
 
@@ -26,13 +26,13 @@ type SpyAuthService struct {
 	Error error
 }
 
-func (spy *SpyAuthService) VerifyOverlayID(channelID models.UserID, overlayID uuid.UUID) error {
+func (spy *SpyAuthService) VerifyOverlayID(channelID models.TwitchID, overlayID uuid.UUID) error {
 	spy.Calls = append(spy.Calls, VerifyOverlayIDCall{channelID, overlayID})
 	return spy.Error
 }
 
 type GetEventStreamCall struct {
-	ChannelID models.UserID
+	ChannelID models.TwitchID
 }
 
 type SpyChannelService struct {
@@ -41,7 +41,7 @@ type SpyChannelService struct {
 	Error  error
 }
 
-func (spy *SpyChannelService) GetEventStream(channelID models.UserID) (services.EventStream, error) {
+func (spy *SpyChannelService) GetEventStream(channelID models.TwitchID) (services.EventStream, error) {
 	spy.Calls = append(spy.Calls, GetEventStreamCall{channelID})
 	return spy.Stream, spy.Error
 }
@@ -71,7 +71,7 @@ func setupTestContext(channelID string, overlayID string) (*gin.Context, *CloseN
 }
 
 func TestHandleListen(t *testing.T) {
-	channelID := models.UserID("channelID")
+	channelID := models.TwitchID("channelID")
 	overlayID := uuid.New()
 
 	t.Run("handle listen functions correctly", func(t *testing.T) {

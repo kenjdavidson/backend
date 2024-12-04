@@ -10,7 +10,7 @@ import (
 )
 
 type GetOverlayIDCall struct {
-	ChannelID models.UserID
+	ChannelID models.TwitchID
 }
 
 type SpyRepo struct {
@@ -19,14 +19,14 @@ type SpyRepo struct {
 	Error     error
 }
 
-func (spy *SpyRepo) GetOverlayID(channelID models.UserID) (uuid.UUID, error) {
+func (spy *SpyRepo) GetOverlayID(channelID models.TwitchID) (uuid.UUID, error) {
 	spy.Calls = append(spy.Calls, GetOverlayIDCall{channelID})
 	return spy.OverlayID, spy.Error
 }
 
 func TestVerifyOverlayID(t *testing.T) {
 	t.Run("verify overlay id returns nil in normal run", func(t *testing.T) {
-		channelID := models.UserID("channel id")
+		channelID := models.TwitchID("channel id")
 		overlayID := uuid.New()
 
 		spyRepo := &SpyRepo{[]GetOverlayIDCall{}, overlayID, nil}
@@ -45,7 +45,7 @@ func TestVerifyOverlayID(t *testing.T) {
 	})
 
 	t.Run("verify overlay id returns an error when ids do not match", func(t *testing.T) {
-		channelID := models.UserID("channel id")
+		channelID := models.TwitchID("channel id")
 		overlayID := uuid.New()
 
 		spyRepo := &SpyRepo{[]GetOverlayIDCall{}, uuid.New(), nil}
