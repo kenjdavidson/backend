@@ -11,13 +11,12 @@ import (
 )
 
 func ConnectDB() (*gorm.DB, error) {
-	// In Docker compose environment
+	// Add to GitHub secrets
+	// Inject into Docker image
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	sslMode := os.Getenv("DB_SSL_MODE")
 	dbName := os.Getenv("DB_NAME")
-
-	// Convert to Docker secrets
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 

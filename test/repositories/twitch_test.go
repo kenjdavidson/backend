@@ -18,7 +18,12 @@ func setupTwitchRepository() *repositories.TwitchRepository {
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
 
-	return repositories.NewTwitchRepository(clientID, clientSecret)
+	repo, err := repositories.NewTwitchRepository(clientID, clientSecret)
+	if err != nil {
+		panic(err)
+	}
+
+	return repo
 }
 
 func TestGetUsername(t *testing.T) {

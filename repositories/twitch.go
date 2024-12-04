@@ -22,72 +22,98 @@ type accessTokenResponse struct {
 }
 
 type TwitchRepository struct {
-	ClientID     string
-	ClientSecret string
+	clientID     string
+	clientSecret string
+	accessToken  string
 }
 
-func NewTwitchRepository(id, secret string) *TwitchRepository {
-	return &TwitchRepository{ClientID: id, ClientSecret: secret}
+func NewTwitchRepository(id, secret string) (*TwitchRepository, error) {
+	repo := &TwitchRepository{clientID: id, clientSecret: secret}
+	if err := repo.refreshAccessToken(); err != nil {
+		return repo, err
+	}
+	return repo, nil
 }
 
 func (repo *TwitchRepository) GetUsername(userID models.UserID) (string, error) {
-	url := fmt.Sprintf("https://api.twitch.tv/helix/users?id=%s", userID)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	accessToken, err := repo.getAccessToken()
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	req.Header.Add("Client-Id", repo.ClientID)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
+	resp, err := repo.getUsernameWithRefresh(userID)
 	if err != nil {
 		return "", err
 	}
 
 	if resp.StatusCode != 200 {
-		return "", errors.New(string(body))
+		return "", errors.New("received incorrect status code from twitch")
 	}
 
 	var data usernameResponse
-	if err = json.Unmarshal(body, &data); err != nil {
+	if err := parseResponse(&data, resp); err != nil {
 		return "", err
 	}
 
 	return data.Data[0].Login, nil
 }
 
-func (repo *TwitchRepository) getAccessToken() (string, error) {
-	resp, err := http.PostForm("https://id.twitch.tv/oauth2/token", url.Values{
-		"client_id":     {repo.ClientID},
-		"client_secret": {repo.ClientSecret},
-		"grant_type":    {"client_credentials"},
-	})
+func (repo *TwitchRepository) getUsernameWithRefresh(userID models.UserID) (*http.Response, error) {
+	resp, err := getUsername(userID, repo.accessToken, repo.clientID)
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+
+	if resp.StatusCode != 401 {
+		return resp, err
+	}
+
+	if err := repo.refreshAccessToken(); err != nil {
+		return nil, err
+	}
+
+	return getUsername(userID, repo.accessToken, repo.clientID)
+}
+
+func (repo *TwitchRepository) refreshAccessToken() error {
+	resp, err := getAccessToken(repo.clientID, repo.clientSecret)
+	if err != nil {
+		return err
 	}
 	defer resp.Body.Close()
 
+	var data accessTokenResponse
+	if err := parseResponse(&data, resp); err != nil {
+		return err
+	}
+
+	repo.accessToken = data.AccessToken
+	return nil
+}
+
+func parseResponse(data interface{}, resp *http.Response) error {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	var data accessTokenResponse
-	if err = json.Unmarshal(body, &data); err != nil {
-		return "", err
+	return json.Unmarshal(body, &data)
+}
+
+// Could be in separate TwitchApi file
+func getAccessToken(clientID, clientSecret string) (*http.Response, error) {
+	return http.PostForm("https://id.twitch.tv/oauth2/token", url.Values{
+		"client_id":     {clientID},
+		"client_secret": {clientSecret},
+		"grant_type":    {"client_credentials"},
+	})
+}
+
+// Could be in separate TwitchApi file
+func getUsername(userID models.UserID, accessToken, clientID string) (*http.Response, error) {
+	url := fmt.Sprintf("https://api.twitch.tv/helix/users?id=%s", userID)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
 	}
 
-	return data.AccessToken, nil
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	req.Header.Add("Client-Id", clientID)
+
+	return http.DefaultClient.Do(req)
 }

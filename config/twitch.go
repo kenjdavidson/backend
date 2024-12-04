@@ -6,9 +6,9 @@ import (
 	"github.com/streampets/backend/repositories"
 )
 
-func CreateTwitchRepo() *repositories.TwitchRepository {
-	// Stored in GitHub secrets
-	// Injected into image's env at build
+func CreateTwitchRepo() (*repositories.TwitchRepository, error) {
+	// Add to GitHub secrets
+	// Inject into Docker image
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
 

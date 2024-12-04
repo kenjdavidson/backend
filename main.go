@@ -18,12 +18,14 @@ func main() {
 		panic(err)
 	}
 
-	// This smells
-	twitchRepo := config.CreateTwitchRepo()
+	twitch, err := config.CreateTwitchRepo()
+	if err != nil {
+		panic(err)
+	}
 
 	r := gin.Default()
 
-	routes.RegisterOverlayRoutes(r, db, twitchRepo)
+	routes.RegisterOverlayRoutes(r, db, twitch)
 
 	r.Run()
 }
