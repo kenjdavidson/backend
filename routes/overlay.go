@@ -19,6 +19,5 @@ func RegisterOverlayRoutes(r *gin.Engine, db *gorm.DB, twitchRepo *repositories.
 	api := r.Group("/api/v1")
 	{
 		api.GET("/listen", overlayController.HandleListen)
-		api.GET("/viewers", overlayController.HandleViewers)
 	}
 }

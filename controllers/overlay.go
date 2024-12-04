@@ -10,12 +10,7 @@ import (
 	"github.com/streampets/backend/services"
 )
 
-type viewerParams struct {
-	ChannelID models.UserID
-	OverlayID uuid.UUID
-}
-
-type channelService interface {
+type chanService interface {
 	GetEventStream(models.UserID) (services.EventStream, error)
 }
 
@@ -24,11 +19,11 @@ type authService interface {
 }
 
 type OverlayController struct {
-	chanService channelService
+	chanService chanService
 	authService authService
 }
 
-func NewOverlayController(chanService channelService, authService authService) *OverlayController {
+func NewOverlayController(chanService chanService, authService authService) *OverlayController {
 	return &OverlayController{
 		chanService: chanService,
 		authService: authService,
@@ -67,16 +62,4 @@ func (c *OverlayController) HandleListen(ctx *gin.Context) {
 		}
 		return false
 	})
-}
-
-func (c *OverlayController) HandleViewers(ctx *gin.Context) {
-	var params viewerParams
-
-	if err := ctx.ShouldBindJSON(params); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 }
