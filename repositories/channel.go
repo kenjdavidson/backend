@@ -7,18 +7,17 @@ import (
 )
 
 type ChannelRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewChannelRepository(db *gorm.DB) *ChannelRepository {
-	return &ChannelRepository{DB: db}
+	return &ChannelRepository{db: db}
 }
 
-func (repo *ChannelRepository) CreateChannel(channelID, channelName string) (uuid.UUID, error) {
-	overlayID := uuid.New()
+func (repo *ChannelRepository) GetOverlayID(channelID models.TwitchID) (uuid.UUID, error) {
+	var channel models.Channel
 
-	channel := models.Channel{ChannelID: channelID, ChannelName: channelName, OverlayID: overlayID}
-	result := repo.DB.Create(&channel)
+	result := repo.db.Where("channel_id = ?", channelID).First(&channel)
 
-	return overlayID, result.Error
+	return channel.OverlayID, result.Error
 }

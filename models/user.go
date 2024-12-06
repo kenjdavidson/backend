@@ -1,6 +1,8 @@
 package models
 
+type TwitchID string
+
 type User struct {
-	UserID   string
+	UserID   TwitchID
 	Username string
 }

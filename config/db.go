@@ -10,16 +10,13 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
-
-func ConnectDB() {
-	// In Docker compose environment
+func ConnectDB() (*gorm.DB, error) {
+	// Add to GitHub secrets
+	// Inject into Docker image
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	sslMode := os.Getenv("DB_SSL_MODE")
 	dbName := os.Getenv("DB_NAME")
-
-	// Convert to Docker secrets
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 
@@ -27,10 +24,10 @@ func ConnectDB() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	db.AutoMigrate(
+	if err := db.AutoMigrate(
 		&models.ChannelItem{},
 		&models.Channel{},
 		&models.DefaultChannelItem{},
@@ -39,7 +36,9 @@ func ConnectDB() {
 		&models.Schedule{},
 		&models.SelectedItem{},
 		&models.User{},
-	)
+	); err != nil {
+		return nil, err
+	}
 
-	DB = db
+	return db, nil
 }
